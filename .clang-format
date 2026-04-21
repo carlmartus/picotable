@@ -1,0 +1,6 @@
+BasedOnStyle: Google
+IndentWidth: 4
+KeepEmptyLines:
+  AtEndOfFile: true
+SortIncludes: true
+
