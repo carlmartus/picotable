@@ -10,19 +10,30 @@
 #include <stdlib.h>
 #endif
 
-// Main table structure
+/**
+ * @brief Main table structure for storing rows of data
+ */
 typedef struct {
-    void *buffer;                 // Pointer to row data
-    size_t capacity;              // Maximum number of rows
-    size_t size;                  // Current number of rows
-    size_t row_size;              // Size of each row in bytes
-    unsigned char allocated : 1;  // 1 if buffer was malloc'd, 0 if fixed
+    void *buffer;                /**< Pointer to row data */
+    size_t capacity;             /**< Maximum number of rows */
+    size_t size;                 /**< Current number of rows */
+    size_t row_size;             /**< Size of each row in bytes */
+    unsigned char allocated : 1; /**< 1 if buffer was malloc'd, 0 if fixed */
 } Picotable;
 
 #ifndef PICOTABLE_NO_STD
 
+/**
+ * @brief Create a table with dynamic memory allocation
+ *
+ * @param table Pointer to the Picotable structure to initialize
+ * @param initial_capacity Initial capacity of the table
+ * @param row_size Size of each row in bytes
+ * @note This function allocates memory using malloc()
+ */
 void Picotable_alloc(Picotable *table, size_t initial_capacity,
                      size_t row_size) {
+    assert(table != NULL);
     assert(initial_capacity > 0);
     assert(row_size > 0);
 
@@ -38,7 +49,15 @@ void Picotable_alloc(Picotable *table, size_t initial_capacity,
 
 #endif
 
-// Create a table using a fixed buffer
+/**
+ * @brief Create a table using a fixed buffer
+ *
+ * @param table Pointer to the Picotable structure to initialize
+ * @param buffer Pre-allocated buffer to use for storage
+ * @param capacity Maximum capacity of the fixed buffer
+ * @param row_size Size of each row in bytes
+ * @note This function does not allocate memory, uses provided buffer
+ */
 void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
                      size_t row_size) {
     assert(table != NULL);
@@ -55,8 +74,14 @@ void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
 
 #ifndef PICOTABLE_NO_STD
 
-// Free table memory if it was dynamically allocated
+/**
+ * @brief Free table memory if it was dynamically allocated
+ *
+ * @param table Pointer to the Picotable structure to free
+ * @note Only frees memory if the table was created with Picotable_alloc()
+ */
 void Picotable_free(Picotable *table) {
+    assert(table != NULL);
     assert(table->allocated);
 
     free(table->buffer);
@@ -69,10 +94,17 @@ void Picotable_free(Picotable *table) {
 
 #endif
 
-// Append a row to the table
-// If reference is not NULL, stores the row offset
-// Returns pointer to the new row, or NULL on failure
+/**
+ * @brief Append a row to the table
+ *
+ * @param table Pointer to the Picotable structure
+ * @param reference Optional pointer to store the row offset
+ * @return Pointer to the new row, or NULL on failure
+ * @note Automatically grows the table if needed (for dynamically allocated
+ * tables)
+ */
 void *Picotable_append(Picotable *table, size_t *reference) {
+    assert(table != NULL);
     assert(table->buffer != NULL);
 
     // Check if we need to grow the table
