@@ -1,20 +1,18 @@
 # picotable.h
 
-A pico size, header-only C library for managing in-memory data types in tables. Designed for simplicity, portability and zero runtime overhead.
+A pico size, header-only C library for storing in-memory types in tables. Designed for portability.
 
-Struct instances are stored as rows in tables with each row accessible with a offset.
+Struct instances are stored as rows in tables with each row accessible with a offset. Suitable for [form normalization](https://en.wikipedia.org/wiki/Database_normalization) in an embeded setting.
 
-Enables form naturalization of N-th degree.
-
-Although the library is small it may serve as a central piece for enabling dynamic buisiness logic in C program.
+Although the library is pico size small, it may serve as a central piece for enabling dynamic business logic in C program.
 
 ## Features
 
 - **Allocation**: Supports both dynamic (`malloc`) or fixed size buffers.
 - **Appending**: Efficient insertion with automatic doubling of table capacity when full.
-- **Type Agnostic**: Works with any row structure.
-- **No Hidden Logic**: Normalization, sorting, and querying are left to the user.
-- **Embedded-Friendly**: Predictable behavior, no dynamic allocations by default.
+- **No Hidden Logic**: Normalization, sorting, and querying are left to the user. What did you expect? It's pico size.
+- **Agent friendly**: Tell your LLM agent to use `@picotable.h` and to store the application state as pico tables.
+- **No stdlib required**: Set the define `PICOTABLE_NO_STD` and stick to fixed buffers. Removing *clib* as a dependency.
 
 ## Installation
 
