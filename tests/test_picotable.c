@@ -90,3 +90,92 @@ Test(picotable, test_fixed_buffer) {
     cr_assert_eq(table.size, capacity, "Size should remain at capacity");
 }
 
+// Helper match function for testing match_insert
+static int match_int_value(const void *row) {
+    int value = *(const int *)row;
+    return value == 42;
+}
+
+Test(picotable, test_match_insert) {
+    Picotable table;
+    size_t initial_capacity = 4;
+    size_t row_size = sizeof(int);
+
+    Picotable_alloc(&table, initial_capacity, row_size);
+
+    // Add some rows with values 1, 2, 3, 4
+    for (int i = 1; i <= 4; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        cr_assert_not_null(row, "Append should succeed");
+        *row = i;
+    }
+
+    // Test match_insert with a value that doesn't exist - should append
+    size_t new_reference;
+    int *new_row =
+        (int *)Picotable_match_insert(&table, &new_reference, match_int_value);
+    cr_assert_not_null(new_row, "match_insert should append when no match");
+    cr_assert_eq(new_reference, 4, "Reference should be index 4");
+    cr_assert_eq(table.size, 5, "Size should be 5");
+
+    // Set the new row value to 42
+    *new_row = 42;
+
+    // Test match_insert with a value that exists - should find match
+    size_t found_reference;
+    int *found_row = (int *)Picotable_match_insert(&table, &found_reference,
+                                                   match_int_value);
+    cr_assert_not_null(found_row, "match_insert should find match");
+    cr_assert_eq(found_reference, 4,
+                 "Reference should be index 4 (the 42 row)");
+    cr_assert_eq(*found_row, 42, "Found row should have value 42");
+    cr_assert_eq(table.size, 5, "Size should still be 5 (no new row added)");
+
+    // Test with NULL reference
+    int *found_row2 =
+        (int *)Picotable_match_insert(&table, NULL, match_int_value);
+    cr_assert_not_null(found_row2,
+                       "match_insert should work with NULL reference");
+    cr_assert_eq(*found_row2, 42, "Found row should still have value 42");
+
+    Picotable_free(&table);
+}
+
+Test(picotable, test_iterate) {
+    Picotable table;
+    size_t initial_capacity = 5;
+    size_t row_size = sizeof(int);
+
+    Picotable_alloc(&table, initial_capacity, row_size);
+
+    // Add rows with values 10, 20, 30
+    for (int i = 1; i <= 3; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        *row = i * 10;
+    }
+
+    // Iterate and verify all rows
+    size_t idx = 0;
+    int expected = 10;
+    void *row_ptr;
+    while (Picotable_iterate(&table, &row_ptr, &idx)) {
+        int *row = (int *)row_ptr;
+        cr_assert_eq(*row, expected, "Row value should be %d", expected);
+        expected += 10;
+    }
+    cr_assert_eq(idx, 3, "Index should be 3 after iterating all rows");
+
+    // Test iteration on empty table
+    Picotable_free(&table);
+    Picotable_alloc(&table, 10, sizeof(int));
+
+    idx = 0;
+    int iteration_count = 0;
+    while (Picotable_iterate(&table, &row_ptr, &idx)) {
+        iteration_count++;
+    }
+    cr_assert_eq(iteration_count, 0, "Should not iterate on empty table");
+
+    Picotable_free(&table);
+}
+

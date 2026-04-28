@@ -102,4 +102,6 @@ Change library properties by setting these defines.
 | `Picotable_fixed` | Create a table that uses a fixed buffer. |
 | `Picotable_free` | Free table with dynamic memory. |
 | `Picotable_append` | Append a row; returns `NULL` on failure. |
+| `Picotable_match_insert` | Insert a row at the next empty space |
+| `Picotable_iterate` | Iterate over table rows |
 

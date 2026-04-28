@@ -2,6 +2,7 @@
 #define PICOTABLE_H
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -33,7 +34,6 @@ typedef struct {
  */
 void Picotable_alloc(Picotable *table, size_t initial_capacity,
                      size_t row_size) {
-    assert(table != NULL);
     assert(initial_capacity > 0);
     assert(row_size > 0);
 
@@ -81,7 +81,6 @@ void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
  * @note Only frees memory if the table was created with Picotable_alloc()
  */
 void Picotable_free(Picotable *table) {
-    assert(table != NULL);
     assert(table->allocated);
 
     free(table->buffer);
@@ -104,7 +103,6 @@ void Picotable_free(Picotable *table) {
  * tables)
  */
 void *Picotable_append(Picotable *table, size_t *reference) {
-    assert(table != NULL);
     assert(table->buffer != NULL);
 
     // Check if we need to grow the table
@@ -120,13 +118,10 @@ void *Picotable_append(Picotable *table, size_t *reference) {
 
 #ifndef PICOTABLE_NO_STD
         new_buffer = realloc(table->buffer, new_capacity * table->row_size);
+        assert(new_buffer != NULL);
 #else
         return NULL;
 #endif
-
-        if (new_buffer == NULL) {
-            return NULL;
-        }
 
         table->buffer = new_buffer;
         table->capacity = new_capacity;
@@ -142,6 +137,66 @@ void *Picotable_append(Picotable *table, size_t *reference) {
 
     table->size++;
     return row_ptr;
+}
+
+/**
+ * @brief Insert a row, identify empty rows with the match function
+ *
+ * @param table Pointer to the Picotable structure
+ * @param reference Optional pointer to store the row offset
+ * @param match_function Function that takes a row pointer and returns non-zero
+ * if it matches
+ * @return Pointer to the matching row, or a new row if no match found
+ * @note Scans all existing rows first; if match_function returns non-zero for
+ * any row, that row is returned with reference set. If no match, calls
+ * Picotable_append.
+ */
+void *Picotable_match_insert(Picotable *table, size_t *reference,
+                             int (*match_function)(const void *)) {
+    assert(table != NULL);
+    assert(table->buffer != NULL);
+    assert(match_function != NULL);
+
+    // Scan all existing rows
+    for (size_t i = 0; i < table->size; i++) {
+        void *row_ptr = (char *)table->buffer + (i * table->row_size);
+        if (match_function(row_ptr)) {
+            // Match found - return existing row with reference set
+            if (reference != NULL) {
+                *reference = i;
+            }
+            return row_ptr;
+        }
+    }
+
+    // No match found - append a new row
+    return Picotable_append(table, reference);
+}
+
+/**
+ * @brief Iterate over table rows
+ *
+ * @param table Pointer to the Picotable structure
+ * @param data Output pointer to current row data
+ * @param reference In/out pointer to current index (starts at 0, increments
+ * each call)
+ * @return true if a row was returned, false if iteration is complete
+ * @note Usage: size_t idx = 0; while (Picotable_iterate(&table, &row, &idx)) {
+ * ... }
+ */
+bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
+    assert(table != NULL);
+    assert(table->buffer != NULL);
+    assert(data != NULL);
+    assert(reference != NULL);
+
+    if (*reference >= table->size) {
+        return false;
+    }
+
+    *data = (char *)table->buffer + (*reference * table->row_size);
+    (*reference)++;
+    return true;
 }
 
 #endif  // PICOTABLE_H
