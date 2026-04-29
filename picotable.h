@@ -12,6 +12,96 @@
 #endif
 
 /**
+ * @file picotable.h
+ * @brief A pico size, header-only C library for storing in-memory types in
+ * tables.
+ *
+ * Designed for portability and simplicity. Struct instances are stored as rows
+ * in tables with each row accessible via offset. Enables database-style
+ * normalization of N-th degree.
+ *
+ * @section agents Agent Guidance
+ *
+ * picotable.h is designed to be agent-friendly. When acting as an autonomous
+ * coding agent (LLM), follow these patterns:
+ *
+ * @subsection agent_state State Management
+ * - Store all application state as pico tables
+ * - Use separate tables for each entity type (e.g., categories, products,
+ * users)
+ * - Represent relationships between entities using row offsets (size_t
+ * references)
+ * - Always request a reference when appending: @code Picotable_append(&table,
+ * &ref) @endcode
+ *
+ * @subsection agentTables Table Definition Pattern
+ * @code
+ * // 1. Define row types
+ * typedef struct {
+ *     char name[50];
+ * } Category;
+ *
+ * typedef struct {
+ *     char name[50];
+ *     uint32_t price;
+ *     size_t category_ref;  // Reference to Category table
+ * } Product;
+ *
+ * // 2. Declare tables (typically static/global)
+ * static Picotable table_categories;
+ * static Picotable table_products;
+ *
+ * // 3. Initialize in setup function
+ * Picotable_alloc(&table_categories, 16, sizeof(Category));
+ * Picotable_alloc(&table_products, 16, sizeof(Product));
+ * @endcode
+ *
+ * @subsection agent_relationships Relationships
+ * - Use @c size_t fields to store references to rows in other tables
+ * - References are indices/offsets (0, 1, 2, ...) into the target table
+ * - When iterating, use the reference to look up related data:
+ *   @code
+ *   Category *cat = (Category *)table_categories.buffer + (ref *
+ * table_categories.row_size);
+ *   @endcode
+ * - For backward references, store the source table and reference together
+ *
+ * @subsection agent_insertion Data Insertion
+ * - Always capture references on append:
+ *   @code
+ *   size_t cat_ref;
+ *   Category *cat = Picotable_append(&table_categories, &cat_ref);
+ *   snprintf(cat->name, 50, "Electronics");
+ *   @endcode
+ * - Use Picotable_match_insert for upsert patterns with a match function
+ *
+ * @subsection agent_iteration Iteration
+ * - Use Picotable_iterate for safe traversal:
+ *   @code
+ *   size_t idx = 0;
+ *   void *row;
+ *   while (Picotable_iterate(&table, &row, &idx)) {
+ *       Category *cat = (Category *)row;
+ *       printf("%s\n", cat->name);
+ *   }
+ *   @endcode
+ *
+ * @subsection agent_memory Memory Management
+ * - For dynamic memory: Use Picotable_alloc + Picotable_free
+ * - For fixed buffers: Use Picotable_fixed (no free needed)
+ * - Set @c PICOTABLE_NO_STD to disable malloc/realloc/free dependencies
+ * - Fixed buffers are ideal for embedded/agent contexts with limited stdlib
+ *
+ * @subsection agent_normalization Normalization and Queries
+ * - The library intentionally has NO hidden logic
+ * - You (the agent) must implement: sorting, querying, filtering, joins
+ * - Store query results in separate result tables if needed
+ * - Use the reference system to build any relationship graph
+ *
+ * @note Always include this header with: @code #include "picotable.h" @endcode
+ */
+
+/**
  * @brief Main table structure for storing rows of data
  */
 typedef struct {
