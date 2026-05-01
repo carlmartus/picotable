@@ -1,3 +1,5 @@
+![Logo](logo.png)
+
 # picotable.h
 
 A pico size, header-only C library for storing in-memory types in tables. Designed for portability.
