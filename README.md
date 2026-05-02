@@ -112,6 +112,7 @@ Change library properties by setting these defines.
 Sample programs demonstrating picotable usage:
 
 - **[fruit_counter.c](sample/fruit_counter.c)** - A REPL that uses `Picotable_match_insert` to upsert fruits into a Fruits table and `Picotable_iterate` to display all entries with counts after each input.
+- **[products.c](sample/products.c)** - An ncurses-based menu application that uses two tables (categories and products) with a reference from products to categories.
 
 To build all samples: `make samples`
 
