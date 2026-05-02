@@ -91,11 +91,15 @@ Picotable_free(&table_products);
 
 ## API Reference
 
+> [!NOTE]
+> Each function has detailed Doxygen-style documentation inside `picotable.h` with parameters, return values, and usage notes.
+
 Change library properties by setting these defines.
 
 | Define | Description |
 |:--|:--|
-| `PICOTABLE_NO_STD` | Disable include of `stdlib.h` |
+| `PICOTABLE_VERSION` | Picotable version stamp |
+| `PICOTABLE_NO_STD` | Disable include of `stdlib.h` - allocations disabled |
 
 
 | Function | Description |
@@ -106,6 +110,20 @@ Change library properties by setting these defines.
 | `Picotable_append` | Append a row; returns `NULL` on failure. |
 | `Picotable_match_insert` | Insert a row at the next empty space |
 | `Picotable_iterate` | Iterate over table rows |
+
+**Do:**
+- Use separate tables for each entity type (categories, products, users)
+- Represent relationships using row offsets (`size_t` references)
+- Capture references when appending: `Picotable_append(..., &ref)` & `Picotable_match_insert(..., &ref, ...)`
+- Use `Picotable_get` to look up related data by reference
+- Use `Picotable_iterate` for safe traversal of table rows
+- Use fixed buffers (`Picotable_fixed`) for embedded contexts without stdlib
+
+**Don't:**
+- Don't expect hidden logic — you must implement sorting, querying, filtering, and joins yourself
+- Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_match_insert` on fixed buffers
+- Don't mix allocation modes — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both
+- Don't forget to free dynamically allocated tables with `Picotable_free`
 
 ## Samples
 
