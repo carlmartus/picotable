@@ -109,10 +109,9 @@ CategoryOffset select_category() {
         mvprintw(2, (COLS - 18) / 2, "Select Category");
 
         // Draw category list
-        for (size_t i = 0; i < categories_table.size; i++) {
-            Category *cat = (Category *)((char *)categories_table.buffer +
-                                         i * categories_table.row_size);
-
+        size_t i = 0;
+        Category *cat;
+        while (Picotable_iterate(&categories_table, (void **)&cat, NULL)) {
             if (i == selected) {
                 attron(A_REVERSE);
             }
@@ -120,6 +119,7 @@ CategoryOffset select_category() {
             if (i == selected) {
                 attroff(A_REVERSE);
             }
+            i++;
         }
 
         mvprintw(LINES - 3, (COLS - 35) / 2,
@@ -233,13 +233,14 @@ void list_products() {
     mvprintw(2, (COLS - 20) / 2, "Product Inventory");
     mvprintw(4, 5, "%-20s %-20s", "Product", "Category");
 
-    for (size_t i = 0; i < products_table.size; i++) {
-        Product *prod = (Product *)((char *)products_table.buffer +
-                                    i * products_table.row_size);
+    size_t i = 0;
+    Product *prod;
+    while (Picotable_iterate(&products_table, (void**) &prod, NULL)) {
         Category *cat =
             (Category *)((char *)categories_table.buffer +
                          prod->category_offset * categories_table.row_size);
         mvprintw(6 + i, 5, "%-20s %-20s", prod->name, cat->name);
+        i++;
     }
 
     mvprintw(LINES - 3, (COLS - 30) / 2, "Press any key to continue");

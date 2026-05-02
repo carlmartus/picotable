@@ -269,24 +269,48 @@ void *Picotable_match_insert(Picotable *table, size_t *reference,
  * @param table Pointer to the Picotable structure
  * @param data Output pointer to current row data
  * @param reference In/out pointer to current index (starts at 0, increments
- * each call)
+ *        each call). May be NULL for simple iteration without index tracking.
  * @return true if a row was returned, false if iteration is complete
- * @note Usage: size_t idx = 0; while (Picotable_iterate(&table, &row, &idx)) {
- * ... }
+ * @note Usage with index: size_t idx = 0; while (Picotable_iterate(&table,
+ *       &row, &idx)) { ... }
+ * @note Usage without index: while (Picotable_iterate(&table, &row, NULL))
+ *       { ... }
+ * @note When reference is NULL, iteration state is maintained internally per
+ *       table. Do not interleave iterations over multiple tables with NULL
+ *       reference.
  */
 bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
     assert(table != NULL);
     assert(table->buffer != NULL);
     assert(data != NULL);
-    assert(reference != NULL);
 
-    if (*reference >= table->size) {
-        return false;
+    if (reference != NULL) {
+        if (*reference >= table->size) {
+            return false;
+        }
+        *data = (char *)table->buffer + (*reference * table->row_size);
+        (*reference)++;
+        return true;
+    } else {
+        // For NULL reference: track iteration state internally
+        static const Picotable *last_table = NULL;
+        static size_t current_index = 0;
+
+        if (last_table != table) {
+            // Switching tables, reset index
+            last_table = table;
+            current_index = 0;
+        }
+
+        if (current_index >= table->size) {
+            current_index = 0;
+            return false;
+        }
+
+        *data = (char *)table->buffer + (current_index * table->row_size);
+        current_index++;
+        return true;
     }
-
-    *data = (char *)table->buffer + (*reference * table->row_size);
-    (*reference)++;
-    return true;
 }
 
 #endif  // PICOTABLE_H
