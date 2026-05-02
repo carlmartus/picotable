@@ -235,10 +235,9 @@ void list_products() {
 
     size_t i = 0;
     Product *prod;
-    while (Picotable_iterate(&products_table, (void**) &prod, NULL)) {
+    while (Picotable_iterate(&products_table, (void **)&prod, NULL)) {
         Category *cat =
-            (Category *)((char *)categories_table.buffer +
-                         prod->category_offset * categories_table.row_size);
+            (Category *)Picotable_get(&categories_table, prod->category_offset);
         mvprintw(6 + i, 5, "%-20s %-20s", prod->name, cat->name);
         i++;
     }

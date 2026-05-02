@@ -59,10 +59,9 @@
  * @subsection agent_relationships Relationships
  * - Use @c size_t fields to store references to rows in other tables
  * - References are indices/offsets (0, 1, 2, ...) into the target table
- * - When iterating, use the reference to look up related data:
+ * - Use Picotable_get to look up related data by reference:
  *   @code
- *   Category *cat = (Category *)table_categories.buffer + (ref *
- * table_categories.row_size);
+ *   Category *cat = (Category *)Picotable_get(&table_categories, ref);
  *   @endcode
  * - For backward references, store the source table and reference together
  *
@@ -311,6 +310,22 @@ bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
         current_index++;
         return true;
     }
+}
+
+/**
+ * @brief Get a row from the table by reference (offset)
+ *
+ * @param table Pointer to the Picotable structure
+ * @param reference The row offset/index to retrieve
+ * @return Pointer to the row at the given reference
+ * @note Reference must be a valid offset (0 to size-1)
+ */
+void *Picotable_get(Picotable *table, size_t reference) {
+    assert(table != NULL);
+    assert(table->buffer != NULL);
+    assert(reference < table->size);
+
+    return (char *)table->buffer + (reference * table->row_size);
 }
 
 #endif  // PICOTABLE_H

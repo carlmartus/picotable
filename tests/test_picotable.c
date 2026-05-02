@@ -179,3 +179,36 @@ Test(picotable, test_iterate) {
     Picotable_free(&table);
 }
 
+Test(picotable, test_get) {
+    Picotable table;
+    size_t initial_capacity = 5;
+    size_t row_size = sizeof(int);
+
+    Picotable_alloc(&table, initial_capacity, row_size);
+
+    // Add rows with values 100, 200, 300
+    size_t refs[3];
+    for (int i = 0; i < 3; i++) {
+        int *row = (int *)Picotable_append(&table, &refs[i]);
+        *row = (i + 1) * 100;
+    }
+
+    // Test getting rows by reference
+    for (int i = 0; i < 3; i++) {
+        int *row = (int *)Picotable_get(&table, refs[i]);
+        cr_assert_not_null(row, "Picotable_get should return non-NULL");
+        cr_assert_eq(*row, (i + 1) * 100,
+                     "Row value at reference %zu should be %d", refs[i],
+                     (i + 1) * 100);
+    }
+
+    // Test getting first and last row explicitly
+    int *first_row = (int *)Picotable_get(&table, 0);
+    cr_assert_eq(*first_row, 100, "First row should be 100");
+
+    int *last_row = (int *)Picotable_get(&table, 2);
+    cr_assert_eq(*last_row, 300, "Last row should be 300");
+
+    Picotable_free(&table);
+}
+
