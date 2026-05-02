@@ -6,8 +6,8 @@ TEST_SRC = tests/test_picotable.c
 TEST_BIN = tests/test_picotable
 
 # Sample build
-SAMPLE_SRC = sample/products.c
-SAMPLE_BIN = sample/products
+SAMPLE_SRC = sample/products.c sample/fruit_counter.c
+SAMPLE_BIN = sample/products sample/fruit_counter
 
 .PHONY: test clean help samples
 
@@ -19,9 +19,12 @@ test: $(TEST_BIN)
 $(TEST_BIN): $(TEST_SRC) picotable.h
 	$(CC) $(CFLAGS) -o $@ $< -lcriterion -lpthread
 
-# Build sample binary
-$(SAMPLE_BIN): $(SAMPLE_SRC) picotable.h
+# Build sample binaries
+sample/products: sample/products.c picotable.h
 	$(CC) $(CFLAGS) -o $@ $< -lncursesw
+
+sample/fruit_counter: sample/fruit_counter.c picotable.h
+	$(CC) $(CFLAGS) -o $@ $<
 
 # Clean
 clean:

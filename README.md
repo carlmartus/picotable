@@ -107,3 +107,11 @@ Change library properties by setting these defines.
 | `Picotable_match_insert` | Insert a row at the next empty space |
 | `Picotable_iterate` | Iterate over table rows |
 
+## Samples
+
+Sample programs demonstrating picotable usage:
+
+- **[fruit_counter.c](sample/fruit_counter.c)** - A REPL that uses `Picotable_match_insert` to upsert fruits into a Fruits table and `Picotable_iterate` to display all entries with counts after each input.
+
+To build all samples: `make samples`
+
