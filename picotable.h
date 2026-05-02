@@ -1,6 +1,8 @@
 #ifndef PICOTABLE_H
 #define PICOTABLE_H
 
+#define PICOTABLE_VERSION "0.1.0"
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
