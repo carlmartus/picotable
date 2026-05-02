@@ -121,7 +121,7 @@ typedef struct {
  * @param table Pointer to the Picotable structure to initialize
  * @param initial_capacity Initial capacity of the table
  * @param row_size Size of each row in bytes
- * @note This function allocates memory using malloc()
+ * @note This function allocates memory using malloc().
  */
 void Picotable_alloc(Picotable *table, size_t initial_capacity,
                      size_t row_size) {
@@ -147,7 +147,7 @@ void Picotable_alloc(Picotable *table, size_t initial_capacity,
  * @param buffer Pre-allocated buffer to use for storage
  * @param capacity Maximum capacity of the fixed buffer
  * @param row_size Size of each row in bytes
- * @note This function does not allocate memory, uses provided buffer
+ * @note This function does not allocate memory; it uses the provided buffer.
  */
 void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
                      size_t row_size) {
@@ -169,7 +169,7 @@ void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
  * @brief Free table memory if it was dynamically allocated
  *
  * @param table Pointer to the Picotable structure to free
- * @note Only frees memory if the table was created with Picotable_alloc()
+ * @note Only frees memory if the table was created with Picotable_alloc().
  */
 void Picotable_free(Picotable *table) {
     assert(table->allocated);
@@ -191,7 +191,7 @@ void Picotable_free(Picotable *table) {
  * @param reference Optional pointer to store the row offset
  * @return Pointer to the new row, or NULL on failure
  * @note Automatically grows the table if needed (for dynamically allocated
- * tables)
+ * tables).
  */
 void *Picotable_append(Picotable *table, size_t *reference) {
     assert(table->buffer != NULL);
@@ -231,7 +231,7 @@ void *Picotable_append(Picotable *table, size_t *reference) {
 }
 
 /**
- * @brief Insert a row, identify empty rows with the match function
+ * @brief Insert a row and identify empty rows with the match function
  *
  * @param table Pointer to the Picotable structure
  * @param reference Optional pointer to store the row offset
@@ -298,7 +298,7 @@ bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
         static size_t current_index = 0;
 
         if (last_table != table) {
-            // Switching tables, reset index
+            // Switching tables; reset index
             last_table = table;
             current_index = 0;
         }
@@ -320,7 +320,7 @@ bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
  * @param table Pointer to the Picotable structure
  * @param reference The row offset/index to retrieve
  * @return Pointer to the row at the given reference
- * @note Reference must be a valid offset (0 to size-1)
+ * @note Reference must be a valid offset (0 to size-1).
  */
 void *Picotable_get(Picotable *table, size_t reference) {
     assert(table != NULL);

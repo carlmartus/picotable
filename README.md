@@ -4,9 +4,9 @@
 
 A pico size, header-only C library for storing in-memory types in tables. Designed for portability.
 
-Struct instances are stored as rows in tables with each row accessible with a offset. Suitable for [form normalization](https://en.wikipedia.org/wiki/Database_normalization) in an embeded setting.
+Struct instances are stored as rows in tables with each row accessible with an offset. Suitable for [database normalization](https://en.wikipedia.org/wiki/Database_normalization) in an embedded setting.
 
-Although the library is pico size small, it may serve as a central piece for enabling dynamic business logic in C program.
+Although the library is pico size, it may serve as a central piece for enabling dynamic business logic in C programs.
 
 ## Features
 
@@ -20,9 +20,10 @@ Although the library is pico size small, it may serve as a central piece for ena
 
 1. Copy `picotable.h` into your project.
 2. Include it in your source files:
-  ```c
-   #include "picotable.h"
-  ```
+
+```c
+#include "picotable.h"
+```
 
 ## Quick Start
 
@@ -71,7 +72,7 @@ Picotable_fixed(&table_products, buf_product, 17, sizeof(Product));
 ```c
 size_t category_reference;
 Category *category = Picotable_append(&table_categories, &category_reference);
-snprintf(category.name, 20, "My category 1");
+snprintf(category->name, 20, "My category 1");
 ```
 
 ```c
@@ -108,22 +109,22 @@ Change library properties by setting these defines.
 | `Picotable_fixed` | Create a table that uses a fixed buffer. |
 | `Picotable_free` | Free table with dynamic memory. |
 | `Picotable_append` | Append a row; returns `NULL` on failure. |
-| `Picotable_match_insert` | Insert a row at the next empty space |
-| `Picotable_iterate` | Iterate over table rows |
+| `Picotable_match_insert` | Insert a row at the next empty space. |
+| `Picotable_iterate` | Iterate over table rows. |
 
 **Do:**
-- Use separate tables for each entity type (categories, products, users)
-- Represent relationships using row offsets (`size_t` references)
-- Capture references when appending: `Picotable_append(..., &ref)` & `Picotable_match_insert(..., &ref, ...)`
-- Use `Picotable_get` to look up related data by reference
-- Use `Picotable_iterate` for safe traversal of table rows
-- Use fixed buffers (`Picotable_fixed`) for embedded contexts without stdlib
+- Use separate tables for each entity type (categories, products, users).
+- Represent relationships using row offsets (`size_t` references).
+- Capture references when appending: `Picotable_append(..., &ref)` & `Picotable_match_insert(..., &ref, ...)`.
+- Use `Picotable_get` to look up related data by reference.
+- Use `Picotable_iterate` for safe traversal of table rows.
+- Use fixed buffers (`Picotable_fixed`) for embedded contexts without stdlib.
 
 **Don't:**
-- Don't expect hidden logic — you must implement sorting, querying, filtering, and joins yourself
-- Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_match_insert` on fixed buffers
-- Don't mix allocation modes — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both
-- Don't forget to free dynamically allocated tables with `Picotable_free`
+- Don't expect hidden logic — you must implement sorting, querying, filtering, and joins yourself.
+- Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_match_insert` on fixed buffers.
+- Don't mix allocation modes — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both.
+- Don't forget to free dynamically allocated tables with `Picotable_free`.
 
 ## Samples
 
