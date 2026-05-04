@@ -147,8 +147,8 @@ typedef struct {
  * @param row_size Size of each row in bytes
  * @note This function allocates memory using malloc().
  */
-void Picotable_alloc(Picotable *table, size_t initial_capacity,
-                     size_t row_size) {
+static inline void Picotable_alloc(Picotable *table, size_t initial_capacity,
+                                   size_t row_size) {
     assert(initial_capacity > 0);
     assert(row_size > 0);
 
@@ -173,8 +173,8 @@ void Picotable_alloc(Picotable *table, size_t initial_capacity,
  * @param row_size Size of each row in bytes
  * @note This function does not allocate memory; it uses the provided buffer.
  */
-void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
-                     size_t row_size) {
+static inline void Picotable_fixed(Picotable *table, void *buffer,
+                                   size_t capacity, size_t row_size) {
     assert(table != NULL);
     assert(buffer != NULL);
     assert(capacity > 0);
@@ -195,7 +195,7 @@ void Picotable_fixed(Picotable *table, void *buffer, size_t capacity,
  * @param table Pointer to the Picotable structure to free
  * @note Only frees memory if the table was created with Picotable_alloc().
  */
-void Picotable_free(Picotable *table) {
+static inline void Picotable_free(Picotable *table) {
     assert(table->allocated);
 
     free(table->buffer);
@@ -217,7 +217,7 @@ void Picotable_free(Picotable *table) {
  * @note Automatically grows the table if needed (for dynamically allocated
  * tables).
  */
-void *Picotable_append(Picotable *table, size_t *reference) {
+static inline void *Picotable_append(Picotable *table, size_t *reference) {
     assert(table->buffer != NULL);
 
     // Check if we need to grow the table
@@ -266,8 +266,8 @@ void *Picotable_append(Picotable *table, size_t *reference) {
  * any row, that row is returned with reference set. If no match, calls
  * Picotable_append.
  */
-void *Picotable_matchInsert(Picotable *table, size_t *reference,
-                            int (*match_function)(const void *)) {
+static inline void *Picotable_matchInsert(Picotable *table, size_t *reference,
+                                          int (*match_function)(const void *)) {
     assert(table != NULL);
     assert(table->buffer != NULL);
     assert(match_function != NULL);
@@ -296,7 +296,7 @@ void *Picotable_matchInsert(Picotable *table, size_t *reference,
  * @return Pointer to the row at the given reference
  * @note Reference must be a valid offset (0 to size-1).
  */
-void *Picotable_get(Picotable *table, size_t reference) {
+static inline void *Picotable_get(Picotable *table, size_t reference) {
     assert(table != NULL);
     assert(table->buffer != NULL);
     assert(reference < table->size);
@@ -318,8 +318,8 @@ void *Picotable_get(Picotable *table, size_t reference) {
  * @note To start from a specific offset: PicotableIterator iter = { .table =
  * &table, .offset = 10 };
  */
-bool PicotableIterator_next(PicotableIterator *iter, void **data,
-                            size_t *index) {
+static inline bool PicotableIterator_next(PicotableIterator *iter, void **data,
+                                          size_t *index) {
     assert(iter != NULL);
     assert(iter->table != NULL);
     assert(iter->table->buffer != NULL);
