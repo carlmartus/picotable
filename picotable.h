@@ -73,7 +73,7 @@
  *   Category *cat = Picotable_append(&table_categories, &cat_ref);
  *   snprintf(cat->name, 50, "Electronics");
  *   @endcode
- * - Use Picotable_match_insert for upsert patterns with a match function
+ * - Use Picotable_matchInsert for upsert patterns with a match function
  *
  * @subsection agent_iteration Iteration
  * - Use PicotableIterator for safe traversal:
@@ -266,8 +266,8 @@ void *Picotable_append(Picotable *table, size_t *reference) {
  * any row, that row is returned with reference set. If no match, calls
  * Picotable_append.
  */
-void *Picotable_match_insert(Picotable *table, size_t *reference,
-                             int (*match_function)(const void *)) {
+void *Picotable_matchInsert(Picotable *table, size_t *reference,
+                            int (*match_function)(const void *)) {
     assert(table != NULL);
     assert(table->buffer != NULL);
     assert(match_function != NULL);

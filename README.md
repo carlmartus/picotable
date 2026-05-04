@@ -109,21 +109,21 @@ Change library properties by setting these defines.
 | `Picotable_fixed` | Create a table that uses a fixed buffer. |
 | `Picotable_free` | Free table with dynamic memory. |
 | `Picotable_append` | Append a row; returns `NULL` on failure. |
-| `Picotable_match_insert` | Insert a row at the next empty space. |
+| `Picotable_matchInsert` | Insert a row at the next empty space. |
 | `Picotable_get` | Get a row by reference (offset). |
 | `PicotableIterator_next` | Advance iterator and get the next row. |
 
 **Do:**
 - Use separate tables for each entity type (categories, products, users).
 - Represent relationships using row offsets (`size_t` references).
-- Capture references when appending: `Picotable_append(..., &ref)` & `Picotable_match_insert(..., &ref, ...)`.
+- Capture references when appending: `Picotable_append(..., &ref)` & `Picotable_matchInsert(..., &ref, ...)`.
 - Use `Picotable_get` to look up related data by reference.
 - Use `PicotableIterator` for safe traversal of table rows.
 - Use fixed buffers (`Picotable_fixed`) for embedded contexts without stdlib.
 
 **Don't:**
 - Don't expect hidden logic — you must implement sorting, querying, filtering, and joins yourself.
-- Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_match_insert` on fixed buffers.
+- Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_matchInsert` on fixed buffers.
 - Don't mix allocation modes — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both.
 - Don't forget to free dynamically allocated tables with `Picotable_free`.
 
@@ -131,7 +131,7 @@ Change library properties by setting these defines.
 
 Sample programs demonstrating picotable usage:
 
-- **[fruit_counter.c](sample/fruit_counter.c)** - A REPL that uses `Picotable_match_insert` to upsert fruits into a Fruits table and `PicotableIterator` to display all entries with counts after each input.
+- **[fruit_counter.c](sample/fruit_counter.c)** - A REPL that uses `Picotable_matchInsert` to upsert fruits into a Fruits table and `PicotableIterator` to display all entries with counts after each input.
 - **[products.c](sample/products.c)** - An ncurses-based menu application that uses two tables (categories and products) with a reference from products to categories.
 
 To build all samples: `make samples`

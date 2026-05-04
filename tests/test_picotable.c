@@ -90,13 +90,13 @@ Test(picotable, test_fixed_buffer) {
     cr_assert_eq(table.size, capacity, "Size should remain at capacity");
 }
 
-// Helper match function for testing match_insert
+// Helper match function for testing matchInsert
 static int match_int_value(const void *row) {
     int value = *(const int *)row;
     return value == 42;
 }
 
-Test(picotable, test_match_insert) {
+Test(picotable, test_matchInsert) {
     Picotable table;
     size_t initial_capacity = 4;
     size_t row_size = sizeof(int);
@@ -110,22 +110,22 @@ Test(picotable, test_match_insert) {
         *row = i;
     }
 
-    // Test match_insert with a value that doesn't exist - should append
+    // Test matchInsert with a value that doesn't exist - should append
     size_t new_reference;
     int *new_row =
-        (int *)Picotable_match_insert(&table, &new_reference, match_int_value);
-    cr_assert_not_null(new_row, "match_insert should append when no match");
+        (int *)Picotable_matchInsert(&table, &new_reference, match_int_value);
+    cr_assert_not_null(new_row, "matchInsert should append when no match");
     cr_assert_eq(new_reference, 4, "Reference should be index 4");
     cr_assert_eq(table.size, 5, "Size should be 5");
 
     // Set the new row value to 42
     *new_row = 42;
 
-    // Test match_insert with a value that exists - should find match
+    // Test matchInsert with a value that exists - should find match
     size_t found_reference;
-    int *found_row = (int *)Picotable_match_insert(&table, &found_reference,
-                                                   match_int_value);
-    cr_assert_not_null(found_row, "match_insert should find match");
+    int *found_row =
+        (int *)Picotable_matchInsert(&table, &found_reference, match_int_value);
+    cr_assert_not_null(found_row, "matchInsert should find match");
     cr_assert_eq(found_reference, 4,
                  "Reference should be index 4 (the 42 row)");
     cr_assert_eq(*found_row, 42, "Found row should have value 42");
@@ -133,9 +133,9 @@ Test(picotable, test_match_insert) {
 
     // Test with NULL reference
     int *found_row2 =
-        (int *)Picotable_match_insert(&table, NULL, match_int_value);
+        (int *)Picotable_matchInsert(&table, NULL, match_int_value);
     cr_assert_not_null(found_row2,
-                       "match_insert should work with NULL reference");
+                       "matchInsert should work with NULL reference");
     cr_assert_eq(*found_row2, 42, "Found row should still have value 42");
 
     Picotable_free(&table);

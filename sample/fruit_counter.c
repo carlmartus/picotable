@@ -1,5 +1,5 @@
-// A REPL that uses Picotable_match_insert to upsert fruits into a Fruits table
-// and Picotable_iterate to display all entries with counts after each input.
+// A REPL that uses Picotable_matchInsert to upsert fruits into a Fruits table
+// and PicotableIterator to display all entries with counts after each input.
 
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +33,7 @@ int main() {
 
         size_t ref;
         Fruit *fruit =
-            (Fruit *)Picotable_match_insert(&table_fruits, &ref, fruit_match);
+            (Fruit *)Picotable_matchInsert(&table_fruits, &ref, fruit_match);
 
         if (fruit->count == 0) {
             strncpy(fruit->name, current_input, 19);

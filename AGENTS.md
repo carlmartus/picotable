@@ -10,6 +10,8 @@ When adding, changing, or removing a feature:
 
 2. **`@section agents` in `picotable.h`** - Update the agent guidance doxygen section with patterns and examples for end users' agents. This section teaches autonomous agents how to use the library correctly.
 
+3. **Naming conventions** - Function names follow `Class_functionName` (camelCase after underscore).
+
 ## Make Directives
 
 The following make directives should pass:
