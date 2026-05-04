@@ -77,13 +77,30 @@
  * - Use Picotable_match_insert for upsert patterns with a match function
  *
  * @subsection agent_iteration Iteration
- * - Use Picotable_iterate for safe traversal:
+ * - Use PicotableIterator for safe traversal:
  *   @code
- *   size_t idx = 0;
+ *   PicotableIterator iter = { .table = &table };
  *   void *row;
- *   while (Picotable_iterate(&table, &row, &idx)) {
+ *   size_t idx;
+ *   while (PicotableIterator_next(&iter, &row, &idx)) {
  *       Category *cat = (Category *)row;
  *       printf("%s\n", cat->name);
+ *   }
+ *   @endcode
+ * - For simple iteration without index, pass NULL for the index parameter:
+ *   @code
+ *   PicotableIterator iter = { .table = &table };
+ *   void *row;
+ *   while (PicotableIterator_next(&iter, &row, NULL)) {
+ *       Category *cat = (Category *)row;
+ *       printf("%s\n", cat->name);
+ *   }
+ *   @endcode
+ * - To start iteration from a specific offset:
+ *   @code
+ *   PicotableIterator iter = { .table = &table, .offset = 10 };
+ *   while (PicotableIterator_next(&iter, &row, &idx)) {
+ *       // Starts from row 10
  *   }
  *   @endcode
  *
@@ -112,6 +129,14 @@ typedef struct {
     size_t row_size;             /**< Size of each row in bytes */
     unsigned char allocated : 1; /**< 1 if buffer was malloc'd, 0 if fixed */
 } Picotable;
+
+/**
+ * @brief Iterator structure for traversing table rows
+ */
+typedef struct {
+    Picotable *table; /**< Pointer to the table being iterated */
+    size_t offset;    /**< Current position in the iteration */
+} PicotableIterator;
 
 #ifndef PICOTABLE_NO_STD
 
@@ -265,56 +290,6 @@ void *Picotable_match_insert(Picotable *table, size_t *reference,
 }
 
 /**
- * @brief Iterate over table rows
- *
- * @param table Pointer to the Picotable structure
- * @param data Output pointer to current row data
- * @param reference In/out pointer to current index (starts at 0, increments
- *        each call). May be NULL for simple iteration without index tracking.
- * @return true if a row was returned, false if iteration is complete
- * @note Usage with index: size_t idx = 0; while (Picotable_iterate(&table,
- *       &row, &idx)) { ... }
- * @note Usage without index: while (Picotable_iterate(&table, &row, NULL))
- *       { ... }
- * @note When reference is NULL, iteration state is maintained internally per
- *       table. Do not interleave iterations over multiple tables with NULL
- *       reference.
- */
-bool Picotable_iterate(Picotable *table, void **data, size_t *reference) {
-    assert(table != NULL);
-    assert(table->buffer != NULL);
-    assert(data != NULL);
-
-    if (reference != NULL) {
-        if (*reference >= table->size) {
-            return false;
-        }
-        *data = (char *)table->buffer + (*reference * table->row_size);
-        (*reference)++;
-        return true;
-    } else {
-        // For NULL reference: track iteration state internally
-        static const Picotable *last_table = NULL;
-        static size_t current_index = 0;
-
-        if (last_table != table) {
-            // Switching tables; reset index
-            last_table = table;
-            current_index = 0;
-        }
-
-        if (current_index >= table->size) {
-            current_index = 0;
-            return false;
-        }
-
-        *data = (char *)table->buffer + (current_index * table->row_size);
-        current_index++;
-        return true;
-    }
-}
-
-/**
  * @brief Get a row from the table by reference (offset)
  *
  * @param table Pointer to the Picotable structure
@@ -328,6 +303,43 @@ void *Picotable_get(Picotable *table, size_t reference) {
     assert(reference < table->size);
 
     return (char *)table->buffer + (reference * table->row_size);
+}
+
+/**
+ * @brief Advance iterator and get the next row
+ *
+ * @param iter Pointer to the PicotableIterator structure
+ * @param data Output pointer to current row data
+ * @param index Optional output pointer for current index (can be NULL)
+ * @return true if a row was returned, false if iteration is complete
+ * @note Usage without index: PicotableIterator iter = { .table = &table };
+ *       while (PicotableIterator_next(&iter, &row, NULL)) { ... }
+ * @note Usage with index: PicotableIterator iter = { .table = &table };
+ *       while (PicotableIterator_next(&iter, &row, &idx)) { ... }
+ * @note To start from a specific offset: PicotableIterator iter = { .table =
+ * &table, .offset = 10 };
+ */
+bool PicotableIterator_next(PicotableIterator *iter, void **data,
+                            size_t *index) {
+    assert(iter != NULL);
+    assert(iter->table != NULL);
+    assert(iter->table->buffer != NULL);
+    assert(data != NULL);
+
+    Picotable *table = iter->table;
+
+    if (iter->offset >= table->size) {
+        return false;
+    }
+
+    *data = (char *)table->buffer + (iter->offset * table->row_size);
+
+    if (index != NULL) {
+        *index = iter->offset;
+    }
+
+    iter->offset++;
+    return true;
 }
 
 #endif  // PICOTABLE_H

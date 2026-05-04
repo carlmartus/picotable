@@ -141,7 +141,7 @@ Test(picotable, test_match_insert) {
     Picotable_free(&table);
 }
 
-Test(picotable, test_iterate) {
+Test(picotable, test_iterator) {
     Picotable table;
     size_t initial_capacity = 5;
     size_t row_size = sizeof(int);
@@ -155,26 +155,48 @@ Test(picotable, test_iterate) {
     }
 
     // Iterate and verify all rows
-    size_t idx = 0;
+    size_t idx;
     int expected = 10;
     void *row_ptr;
-    while (Picotable_iterate(&table, &row_ptr, &idx)) {
+    PicotableIterator iter = {.table = &table};
+    while (PicotableIterator_next(&iter, &row_ptr, &idx)) {
         int *row = (int *)row_ptr;
         cr_assert_eq(*row, expected, "Row value should be %d", expected);
+        cr_assert_eq(idx, expected / 10 - 1, "Index should match position");
         expected += 10;
     }
-    cr_assert_eq(idx, 3, "Index should be 3 after iterating all rows");
+    cr_assert_eq(idx, 2, "Last index should be 2 after iterating all rows");
 
     // Test iteration on empty table
     Picotable_free(&table);
     Picotable_alloc(&table, 10, sizeof(int));
 
-    idx = 0;
     int iteration_count = 0;
-    while (Picotable_iterate(&table, &row_ptr, &idx)) {
+    PicotableIterator iter2 = {.table = &table};
+    while (PicotableIterator_next(&iter2, &row_ptr, NULL)) {
         iteration_count++;
     }
     cr_assert_eq(iteration_count, 0, "Should not iterate on empty table");
+
+    // Test iteration from offset
+    // Add rows with values 100, 200, 300
+    for (int i = 1; i <= 3; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        *row = i * 100;
+    }
+
+    iteration_count = 0;
+    expected = 200;
+    PicotableIterator iter3 = {.table = &table, .offset = 1};
+    while (PicotableIterator_next(&iter3, &row_ptr, &idx)) {
+        int *row = (int *)row_ptr;
+        cr_assert_eq(*row, expected, "Row value should be %d", expected);
+        cr_assert_eq(idx, 1 + iteration_count, "Index should be correct");
+        expected += 100;
+        iteration_count++;
+    }
+    cr_assert_eq(iteration_count, 2,
+                 "Should iterate 2 rows starting from offset 1");
 
     Picotable_free(&table);
 }
