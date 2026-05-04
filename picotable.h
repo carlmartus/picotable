@@ -1,5 +1,4 @@
-#ifndef PICOTABLE_H
-#define PICOTABLE_H
+#pragma once
 
 #define PICOTABLE_VERSION "0.1.0"
 
@@ -341,6 +340,4 @@ bool PicotableIterator_next(PicotableIterator *iter, void **data,
     iter->offset++;
     return true;
 }
-
-#endif  // PICOTABLE_H
 
