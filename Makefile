@@ -9,7 +9,10 @@ TEST_BIN = tests/test_picotable
 SAMPLE_SRC = sample/products.c sample/fruit_counter.c
 SAMPLE_BIN = sample/products sample/fruit_counter
 
-.PHONY: test clean help samples
+.PHONY: all test clean help samples
+
+# Run both tests and samples
+all: test samples
 
 # Build and run tests
 test: $(TEST_BIN)
@@ -36,6 +39,7 @@ samples: $(SAMPLE_BIN)
 # Show test command
 help:
 	@echo "Make targets:"
+	@echo "  all     - Run tests and build samples"
 	@echo "  test    - Build and run tests"
 	@echo "  samples - Build sample programs"
 	@echo "  clean   - Remove build artifacts"

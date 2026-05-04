@@ -15,4 +15,5 @@ When adding, changing, or removing a feature:
 The following make directives should pass:
 - `make test` - Runs all test cases
 - `make samples` - Builds all sample programs
+- `make all` - Build everything and runs all test cases
 
