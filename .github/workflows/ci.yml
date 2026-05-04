@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build essentials
+        run: sudo apt-get update && sudo apt-get install -y make gcc
+      - name: Install test dependencies
+        run: sudo apt-get install -y libcriterion-dev libncursesw5-dev
+      - name: Run tests
+        run: make test
+      - name: Compile samples
+        run: make samples
