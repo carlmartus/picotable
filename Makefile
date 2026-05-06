@@ -9,7 +9,7 @@ TEST_BIN = tests/test_picotable
 SAMPLE_SRC = sample/products.c sample/fruit_counter.c
 SAMPLE_BIN = sample/products sample/fruit_counter
 
-.PHONY: all test clean help samples
+.PHONY: all test clean help samples format
 
 # Run both tests and samples
 all: test samples
@@ -36,6 +36,10 @@ clean:
 # Build samples
 samples: $(SAMPLE_BIN)
 
+# Format source files, rules are in file .clang-format
+format:
+	clang-format -i tests/*.c picotable.h sample/*.c
+
 # Show test command
 help:
 	@echo "Make targets:"
@@ -43,5 +47,6 @@ help:
 	@echo "  test    - Build and run tests"
 	@echo "  samples - Build sample programs"
 	@echo "  clean   - Remove build artifacts"
+	@echo "  format  - Format source files with clang-format"
 	@echo "  help    - Show this help message"
 
