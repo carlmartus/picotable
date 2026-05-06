@@ -76,9 +76,10 @@
  * - Use Picotable_matchInsert for upsert patterns with a match function
  *
  * @subsection agent_iteration Iteration
- * - Use PicotableIterator for safe traversal:
+ * - Use PicotableIterator for safe traversal. Create with
+ * PicotableIterator_new:
  *   @code
- *   PicotableIterator iter = { .table = &table };
+ *   PicotableIterator iter = PicotableIterator_new(&table);
  *   void *row;
  *   size_t idx;
  *   while (PicotableIterator_next(&iter, &row, &idx)) {
@@ -88,7 +89,7 @@
  *   @endcode
  * - For simple iteration without index, pass NULL for the index parameter:
  *   @code
- *   PicotableIterator iter = { .table = &table };
+ *   PicotableIterator iter = PicotableIterator_new(&table);
  *   void *row;
  *   while (PicotableIterator_next(&iter, &row, NULL)) {
  *       Category *cat = (Category *)row;
@@ -97,7 +98,8 @@
  *   @endcode
  * - To start iteration from a specific offset:
  *   @code
- *   PicotableIterator iter = { .table = &table, .offset = 10 };
+ *   PicotableIterator iter = PicotableIterator_new(&table);
+ *   PicotableIterator_skip(&iter, 10);
  *   while (PicotableIterator_next(&iter, &row, &idx)) {
  *       // Starts from row 10
  *   }
@@ -305,18 +307,47 @@ static inline void *Picotable_get(Picotable *table, size_t reference) {
 }
 
 /**
+ * @brief Create a new iterator for a table
+ *
+ * @param table Pointer to the Picotable structure to iterate over
+ * @return PicotableIterator A new iterator instance with offset set to 0
+ * @note This is the established way to create an iterator.
+ */
+static inline PicotableIterator PicotableIterator_new(Picotable *table) {
+    return (PicotableIterator){.table = table, .offset = 0};
+}
+
+/**
+ * @brief Skip ahead in iteration
+ *
+ * @param iterator Pointer to the PicotableIterator structure
+ * @param count Number of rows to skip
+ * @return true if there are elements left to iterate, false otherwise
+ * @note Use this instead of manually modifying iterator->offset.
+ */
+static inline bool PicotableIterator_skip(PicotableIterator *iterator,
+                                          size_t count) {
+    assert(iterator != NULL);
+    assert(iterator->table != NULL);
+    iterator->offset += count;
+    return iterator->offset < iterator->table->size;
+}
+
+/**
  * @brief Advance iterator and get the next row
  *
  * @param iter Pointer to the PicotableIterator structure
  * @param data Output pointer to current row data
  * @param index Optional output pointer for current index (can be NULL)
  * @return true if a row was returned, false if iteration is complete
- * @note Usage without index: PicotableIterator iter = { .table = &table };
- *       while (PicotableIterator_next(&iter, &row, NULL)) { ... }
- * @note Usage with index: PicotableIterator iter = { .table = &table };
- *       while (PicotableIterator_next(&iter, &row, &idx)) { ... }
- * @note To start from a specific offset: PicotableIterator iter = { .table =
- * &table, .offset = 10 };
+ * @note Usage without index: PicotableIterator iter =
+ * PicotableIterator_new(&table); while (PicotableIterator_next(&iter, &row,
+ * NULL)) { ... }
+ * @note Usage with index: PicotableIterator iter =
+ * PicotableIterator_new(&table); while (PicotableIterator_next(&iter, &row,
+ * &idx)) { ... }
+ * @note To start from a specific offset: PicotableIterator iter =
+ * PicotableIterator_new(&table); PicotableIterator_skip(&iter, 10);
  */
 static inline bool PicotableIterator_next(PicotableIterator *iter, void **data,
                                           size_t *index) {

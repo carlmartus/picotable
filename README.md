@@ -111,6 +111,8 @@ Change library properties by setting these defines.
 | `Picotable_append` | Append a row; returns `NULL` on failure. |
 | `Picotable_matchInsert` | Insert a row at the next empty space. |
 | `Picotable_get` | Get a row by reference (offset). |
+| `PicotableIterator_new` | Create a new iterator for a table. |
+| `PicotableIterator_skip` | Skip ahead in iteration. |
 | `PicotableIterator_next` | Advance iterator and get the next row. |
 
 **Do:**

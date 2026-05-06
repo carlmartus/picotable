@@ -187,7 +187,8 @@ Test(picotable, test_iterator) {
 
     iteration_count = 0;
     expected = 200;
-    PicotableIterator iter3 = {.table = &table, .offset = 1};
+    PicotableIterator iter3 = PicotableIterator_new(&table);
+    PicotableIterator_skip(&iter3, 1);
     while (PicotableIterator_next(&iter3, &row_ptr, &idx)) {
         int *row = (int *)row_ptr;
         cr_assert_eq(*row, expected, "Row value should be %d", expected);

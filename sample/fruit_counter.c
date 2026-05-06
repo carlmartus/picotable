@@ -44,7 +44,7 @@ int main() {
         }
 
         printf("Fruits:\n");
-        PicotableIterator iter = {.table = &table_fruits};
+        PicotableIterator iter = PicotableIterator_new(&table_fruits);
         Fruit *f;
         while (PicotableIterator_next(&iter, (void **)&f, NULL)) {
             printf("  %s: %d\n", f->name, f->count);

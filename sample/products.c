@@ -110,7 +110,7 @@ CategoryOffset select_category() {
 
         // Draw category list
         size_t i = 0;
-        PicotableIterator cat_iter = {.table = &categories_table};
+        PicotableIterator cat_iter = PicotableIterator_new(&categories_table);
         Category *cat;
         while (PicotableIterator_next(&cat_iter, (void **)&cat, NULL)) {
             if (i == selected) {
@@ -235,7 +235,7 @@ void list_products() {
     mvprintw(4, 5, "%-20s %-20s", "Product", "Category");
 
     size_t i = 0;
-    PicotableIterator iter = {.table = &products_table};
+    PicotableIterator iter = PicotableIterator_new(&products_table);
     Product *prod;
     while (PicotableIterator_next(&iter, (void **)&prod, NULL)) {
         Category *cat =
