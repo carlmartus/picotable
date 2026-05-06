@@ -151,8 +151,9 @@ typedef struct {
  */
 static inline void Picotable_alloc(Picotable *table, size_t initial_capacity,
                                    size_t row_size) {
-    assert(initial_capacity > 0);
-    assert(row_size > 0);
+    assert(table != NULL && "table is NULL");
+    assert(initial_capacity > 0 && "initial_capacity is 0");
+    assert(row_size > 0 && "row_size is 0");
 
     void *buffer = NULL;
     buffer = malloc(initial_capacity * row_size);
@@ -177,10 +178,10 @@ static inline void Picotable_alloc(Picotable *table, size_t initial_capacity,
  */
 static inline void Picotable_fixed(Picotable *table, void *buffer,
                                    size_t capacity, size_t row_size) {
-    assert(table != NULL);
-    assert(buffer != NULL);
-    assert(capacity > 0);
-    assert(row_size > 0);
+    assert(table != NULL && "table is NULL");
+    assert(buffer != NULL && "buffer is NULL");
+    assert(capacity > 0 && "capacity is 0");
+    assert(row_size > 0 && "row_size is 0");
 
     table->buffer = buffer;
     table->capacity = capacity;
@@ -198,7 +199,8 @@ static inline void Picotable_fixed(Picotable *table, void *buffer,
  * @note Only frees memory if the table was created with Picotable_alloc().
  */
 static inline void Picotable_free(Picotable *table) {
-    assert(table->allocated);
+    assert(table != NULL && "table is NULL");
+    assert(table->allocated && "table not allocated");
 
     free(table->buffer);
     table->buffer = NULL;
@@ -220,7 +222,8 @@ static inline void Picotable_free(Picotable *table) {
  * tables).
  */
 static inline void *Picotable_append(Picotable *table, size_t *reference) {
-    assert(table->buffer != NULL);
+    assert(table != NULL && "table is NULL");
+    assert(table->buffer != NULL && "buffer is NULL");
 
     // Check if we need to grow the table
     if (table->size >= table->capacity) {
@@ -235,7 +238,7 @@ static inline void *Picotable_append(Picotable *table, size_t *reference) {
 
 #ifndef PICOTABLE_NO_STD
         new_buffer = realloc(table->buffer, new_capacity * table->row_size);
-        assert(new_buffer != NULL);
+        assert(new_buffer != NULL && "realloc failed");
 #else
         return NULL;
 #endif
@@ -270,9 +273,9 @@ static inline void *Picotable_append(Picotable *table, size_t *reference) {
  */
 static inline void *Picotable_matchInsert(Picotable *table, size_t *reference,
                                           int (*match_function)(const void *)) {
-    assert(table != NULL);
-    assert(table->buffer != NULL);
-    assert(match_function != NULL);
+    assert(table != NULL && "table is NULL");
+    assert(table->buffer != NULL && "buffer is NULL");
+    assert(match_function != NULL && "match_function is NULL");
 
     // Scan all existing rows
     for (size_t i = 0; i < table->size; i++) {
@@ -299,9 +302,9 @@ static inline void *Picotable_matchInsert(Picotable *table, size_t *reference,
  * @note Reference must be a valid offset (0 to size-1).
  */
 static inline void *Picotable_get(Picotable *table, size_t reference) {
-    assert(table != NULL);
-    assert(table->buffer != NULL);
-    assert(reference < table->size);
+    assert(table != NULL && "table is NULL");
+    assert(table->buffer != NULL && "buffer is NULL");
+    assert(reference < table->size && "reference out of bounds");
 
     return (char *)table->buffer + (reference * table->row_size);
 }
@@ -314,6 +317,7 @@ static inline void *Picotable_get(Picotable *table, size_t reference) {
  * @note This is the established way to create an iterator.
  */
 static inline PicotableIterator PicotableIterator_new(Picotable *table) {
+    assert(table != NULL && "table is NULL");
     return (PicotableIterator){.table = table, .offset = 0};
 }
 
@@ -327,8 +331,8 @@ static inline PicotableIterator PicotableIterator_new(Picotable *table) {
  */
 static inline bool PicotableIterator_skip(PicotableIterator *iterator,
                                           size_t count) {
-    assert(iterator != NULL);
-    assert(iterator->table != NULL);
+    assert(iterator != NULL && "iterator is NULL");
+    assert(iterator->table != NULL && "table is NULL");
     iterator->offset += count;
     return iterator->offset < iterator->table->size;
 }
@@ -351,10 +355,10 @@ static inline bool PicotableIterator_skip(PicotableIterator *iterator,
  */
 static inline bool PicotableIterator_next(PicotableIterator *iter, void **data,
                                           size_t *index) {
-    assert(iter != NULL);
-    assert(iter->table != NULL);
-    assert(iter->table->buffer != NULL);
-    assert(data != NULL);
+    assert(iter != NULL && "iterator is NULL");
+    assert(iter->table != NULL && "table is NULL");
+    assert(iter->table->buffer != NULL && "buffer is NULL");
+    assert(data != NULL && "data is NULL");
 
     Picotable *table = iter->table;
 
