@@ -1,6 +1,6 @@
 #pragma once
 
-#define PICOTABLE_VERSION "0.1.0"
+#define PICOTABLE_VERSION "0.2.0"
 
 #include <assert.h>
 #include <stdbool.h>
