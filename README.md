@@ -4,16 +4,13 @@
 
 A pico size, header-only C library for storing in-memory types in tables. Designed for portability.
 
-Struct instances are stored as rows in tables with each row accessible with an offset. Suitable for [database normalization](https://en.wikipedia.org/wiki/Database_normalization) in an embedded setting.
-
-Although the library is pico size, it may serve as a central piece for enabling dynamic business logic in C programs.
+Struct instances are stored as rows in tables with each row accessible with an offset. Suitable for the equivalent of [database normalization](https://en.wikipedia.org/wiki/Database_normalization) in an embedded setting. Although the library is pico size, it may serve as a central piece for enabling dynamic business logic in C programs.
 
 ## Features
 
 - **Allocation**: Supports both dynamic (`malloc`) or fixed size buffers.
-- **Appending**: Efficient insertion with automatic doubling of table capacity when full.
+- **Agent friendly**: Header with built-in LLM instructions. Tell your agent to use `@picotable.h` and to store the application state as pico tables.
 - **No Hidden Logic**: Normalization, sorting, and querying are left to the user. What did you expect? It's pico size.
-- **Agent friendly**: Tell your LLM agent to use `@picotable.h` and to store the application state as pico tables.
 - **No stdlib required**: Set the define `PICOTABLE_NO_STD` and stick to fixed buffers. Removing *clib* as a dependency.
 
 ## Installation
@@ -92,7 +89,7 @@ Picotable_free(&table_products);
 
 ## API Reference
 
-> [!NOTE]
+> [!TIP]
 > Each function has detailed Doxygen-style documentation inside `picotable.h` with parameters, return values, and usage notes.
 
 Change library properties by setting these defines.
@@ -126,7 +123,7 @@ Change library properties by setting these defines.
 **Don't:**
 - Don't expect hidden logic — you must implement sorting, querying, filtering, and joins yourself.
 - Don't forget to check for `NULL` returns from `Picotable_append` & `Picotable_matchInsert` on fixed buffers.
-- Don't mix allocation modes — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both.
+- Don't mix allocation modes for tables — use either dynamic (`Picotable_alloc` & `Picotable_free`) or fixed (`Picotable_fixed`), not both.
 - Don't forget to free dynamically allocated tables with `Picotable_free`.
 
 ## Samples
