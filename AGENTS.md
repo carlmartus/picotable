@@ -12,6 +12,8 @@ When adding, changing, or removing a feature:
 
 3. **Naming conventions** - Function names follow `Class_functionName` (camelCase after underscore).
 
+4. **README documentation** - Changes to the API must be reflected in the API section in the README.
+
 ## Make Directives
 
 The following make directives should pass:
