@@ -125,6 +125,13 @@
  * - Store query results in separate result tables if needed
  * - Use the reference system to build any relationship graph
  *
+ * @subsection agent_querying Querying Tables
+ * - Use Picotable_count to get the current number of rows in a table:
+ *   @code
+ *   size_t num_rows = Picotable_count(&table);
+ *   @endcode
+ * - Use Picotable_get to access rows by reference for lookups
+ *
  * @note Always include this header with: @code #include "picotable.h" @endcode
  */
 
@@ -330,6 +337,17 @@ static inline void Picotable_truncate(Picotable *table, size_t new_size) {
     assert(new_size <= table->size && "new_size must be <= current size");
 
     table->size = new_size;
+}
+
+/**
+ * @brief Get the current number of rows in the table
+ *
+ * @param table Pointer to the Picotable structure
+ * @return The current number of rows (size) in the table
+ */
+static inline size_t Picotable_count(Picotable *table) {
+    assert(table != NULL && "table is NULL");
+    return table->size;
 }
 
 /**

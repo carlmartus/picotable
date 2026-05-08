@@ -275,3 +275,37 @@ Test(picotable, test_truncate) {
     Picotable_free(&table);
 }
 
+Test(picotable, test_count) {
+    Picotable table;
+    size_t initial_capacity = 10;
+    size_t row_size = sizeof(int);
+
+    Picotable_alloc(&table, initial_capacity, row_size);
+
+    // Empty table should have count 0
+    cr_assert_eq(Picotable_count(&table), 0, "Empty table count should be 0");
+
+    // Add 3 rows
+    for (int i = 1; i <= 3; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        *row = i;
+    }
+    cr_assert_eq(Picotable_count(&table), 3,
+                 "Count should be 3 after adding 3 rows");
+
+    // Add 2 more rows
+    for (int i = 4; i <= 5; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        *row = i;
+    }
+    cr_assert_eq(Picotable_count(&table), 5,
+                 "Count should be 5 after adding 2 more rows");
+
+    // Truncate and verify count
+    Picotable_truncate(&table, 2);
+    cr_assert_eq(Picotable_count(&table), 2,
+                 "Count should be 2 after truncate");
+
+    Picotable_free(&table);
+}
+
