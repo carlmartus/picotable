@@ -235,3 +235,43 @@ Test(picotable, test_get) {
     Picotable_free(&table);
 }
 
+Test(picotable, test_truncate) {
+    Picotable table;
+    size_t initial_capacity = 10;
+    size_t row_size = sizeof(int);
+
+    Picotable_alloc(&table, initial_capacity, row_size);
+
+    // Add 5 rows with values 1, 2, 3, 4, 5
+    for (int i = 1; i <= 5; i++) {
+        int *row = (int *)Picotable_append(&table, NULL);
+        *row = i;
+    }
+    cr_assert_eq(table.size, 5, "Size should be 5");
+    cr_assert_eq(table.capacity, 10, "Capacity should be 10");
+
+    // Truncate to 3 rows
+    Picotable_truncate(&table, 3);
+    cr_assert_eq(table.size, 3, "Size should be 3 after truncate");
+    cr_assert_eq(table.capacity, 10, "Capacity should remain 10");
+
+    // Verify first 3 rows are still accessible
+    for (int i = 1; i <= 3; i++) {
+        int *row = (int *)Picotable_get(&table, i - 1);
+        cr_assert_eq(*row, i, "Row %d should still have value %d", i - 1, i);
+    }
+
+    // Truncate to 0 (empty table)
+    Picotable_truncate(&table, 0);
+    cr_assert_eq(table.size, 0, "Size should be 0 after truncate to 0");
+    cr_assert_eq(table.capacity, 10, "Capacity should still be 10");
+
+    // Can still append after truncating
+    int *new_row = (int *)Picotable_append(&table, NULL);
+    cr_assert_not_null(new_row, "Append should work after truncate");
+    *new_row = 42;
+    cr_assert_eq(table.size, 1, "Size should be 1 after append");
+
+    Picotable_free(&table);
+}
+

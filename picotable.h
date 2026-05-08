@@ -113,6 +113,14 @@
  *
  * @subsection agent_normalization Normalization and Queries
  * - The library intentionally has NO hidden logic
+ *
+ * @subsection agent_modification Modifying Tables
+ * - Use Picotable_truncate to reduce the logical size of a table (only allows
+ * reducing, not increasing):
+ *   @code
+ *   Picotable_truncate(&table, 3);  // Reduce to first 3 rows
+ *   @endcode
+ * - Truncation does not free memory or reduce capacity
  * - You (the agent) must implement: sorting, querying, filtering, joins
  * - Store query results in separate result tables if needed
  * - Use the reference system to build any relationship graph
@@ -307,6 +315,21 @@ static inline void *Picotable_get(Picotable *table, size_t reference) {
     assert(reference < table->size && "reference out of bounds");
 
     return (char *)table->buffer + (reference * table->row_size);
+}
+
+/**
+ * @brief Truncate the table to a new size
+ *
+ * @param table Pointer to the Picotable structure
+ * @param new_size The new size to set (must be <= current size)
+ * @note This only reduces the logical size, not the capacity. Memory is not
+ * freed. Only allows reducing the size, not increasing it.
+ */
+static inline void Picotable_truncate(Picotable *table, size_t new_size) {
+    assert(table != NULL && "table is NULL");
+    assert(new_size <= table->size && "new_size must be <= current size");
+
+    table->size = new_size;
 }
 
 /**
